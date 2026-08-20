@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>subsense report — {{ report.target_domain }}</title>
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #121821; --border: #232c38; --text: #d7dee7; --muted: #8592a3;
+    --critical: #ff4d4f; --high: #ff8c42; --medium: #ffd166; --low: #6fb1ff; --info: #7c8aa5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  header { padding: 24px 32px; border-bottom: 1px solid var(--border); }
+  header h1 { margin: 0 0 4px; font-size: 22px; }
+  header .meta { color: var(--muted); font-size: 13px; }
+  main { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+  .summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; min-width: 140px; }
+  .card .num { font-size: 28px; font-weight: 600; }
+  .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  h2 { font-size: 16px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 32px 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  tr:hover { background: rgba(255,255,255,0.02); }
+  .sev { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+  .sev-critical { background: rgba(255,77,79,0.15); color: var(--critical); }
+  .sev-high { background: rgba(255,140,66,0.15); color: var(--high); }
+  .sev-medium { background: rgba(255,209,102,0.15); color: var(--medium); }
+  .sev-low { background: rgba(111,177,255,0.15); color: var(--low); }
+  .sev-info { background: rgba(124,138,165,0.15); color: var(--info); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tier { color: var(--muted); font-size: 11px; }
+  details summary { cursor: pointer; color: var(--muted); }
+  pre { white-space: pre-wrap; word-break: break-all; background: #0a0e13; padding: 8px; border-radius: 4px; font-size: 12px; }
+  .empty { color: var(--muted); font-style: italic; padding: 12px 0; }
+  footer { padding: 24px 32px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>subsense — {{ report.target_domain }}</h1>
+  <div class="meta">run {{ report.run_id }} · started {{ report.started_at }} · generated {{ report.generated_at }} · stages: {{ report.completed_stages | join(', ') }}</div>
+</header>
+<main>
+  <div class="summary">
+    <div class="card"><div class="num">{{ report.summary.subdomains_total }}</div><div class="label">Subdomains</div></div>
+    <div class="card"><div class="num">{{ report.summary.subdomains_resolved }}</div><div class="label">Resolved</div></div>
+    <div class="card"><div class="num">{{ report.summary.subdomains_in_scope }}</div><div class="label">In scope</div></div>
+    <div class="card"><div class="num">{{ report.summary.findings_total }}</div><div class="label">Findings</div></div>
+    {% for sev, count in report.summary.findings_by_severity.items() %}
+    <div class="card"><div class="num sev-{{ sev }}" style="font-size:20px">{{ count }}</div><div class="label">{{ sev }}</div></div>
+    {% endfor %}
+  </div>
+
+  <h2>Findings ({{ report.findings | length }})</h2>
+  {% if report.findings %}
+  <table>
+    <thead><tr><th>Severity</th><th>Tier</th><th>Subdomain</th><th>Check</th><th>Title</th><th>Details</th></tr></thead>
+    <tbody>
+    {% for f in report.findings %}
+      <tr>
+        <td><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span></td>
+        <td class="tier">{{ f.tier }}</td>
+        <td class="mono">{{ f.subdomain }}</td>
+        <td class="mono">{{ f.check_name }}</td>
+        <td>
+          {{ f.title }}
+          {% if f.ai_notes %}<div class="tier">AI: {{ f.ai_notes }}</div>{% endif %}
+        </td>
+        <td>
+          <details>
+            <summary>evidence</summary>
+            <pre>{{ f.evidence | tojson(indent=2) }}</pre>
+            {% if f.remediation %}<div><strong>Remediation:</strong> {{ f.remediation }}</div>{% endif %}
+          </details>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No findings.</div>
+  {% endif %}
+
+  <h2>Subdomains ({{ report.subdomains | length }})</h2>
+  {% if report.subdomains %}
+  <table>
+    <thead><tr><th>Hostname</th><th>Resolved</th><th>Scope</th><th>Confidence</th><th>Records</th><th>HTTP</th><th>Sources</th></tr></thead>
+    <tbody>
+    {% for s in report.subdomains %}
+      <tr>
+        <td class="mono">{{ s.hostname }}</td>
+        <td>{{ '✓' if s.resolved else '' }}{{ ' (wildcard)' if s.wildcard_match else '' }}</td>
+        <td>{{ '✓' if s.in_scope else '✕' }}</td>
+        <td>{{ s.confidence }}</td>
+        <td class="mono">{% for r in s.records %}{{ r.record_type }} {{ r.value }}<br>{% endfor %}</td>
+        <td>{{ s.http_status or '' }} {{ s.http_title or '' }}</td>
+        <td>{{ s.sources | join(', ') }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">No subdomains discovered.</div>
+  {% endif %}
+</main>
+<footer>
+  Generated by subsense — for authorized security testing only. Discovery is not authorization to test.
+</footer>
+</body>
+</html>

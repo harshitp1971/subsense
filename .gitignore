@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Environments
+.venv/
+.env
+
+# subsense runtime output / state
+subsense_state.db
+subsense_report/
+*.db
+
+# Secrets / local overrides (API keys, resolver configs — never commit these)
+config/local.yaml
+config/secrets.yaml
+*.key
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/

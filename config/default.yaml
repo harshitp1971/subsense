@@ -1,0 +1,64 @@
+# subsense default configuration
+# Override with --config /path/to/custom.yaml
+
+scope:
+  # Regex patterns matched against discovered hostnames.
+  # A host must match at least one `include` pattern (if any are given) and
+  # must NOT match any `exclude` pattern to be considered in-scope.
+  include: []
+  exclude: []
+
+ratelimit:
+  # Global ceiling on concurrent + per-second requests. This is a safety net —
+  # individual sources/checks may throttle further, but never past this ceiling.
+  max_concurrency: 20
+  requests_per_second: 10.0
+  backoff_base_seconds: 1.0
+  backoff_max_seconds: 60.0
+  jitter_seconds: 0.5
+  respect_retry_after: true
+  proxy: null        # e.g. "http://127.0.0.1:8080" to route all HTTP traffic through a proxy
+  block_detect_threshold: 5
+
+dns:
+  resolvers:
+    - 1.1.1.1
+    - 8.8.8.8
+  timeout_seconds: 5.0
+  attempts: 2
+
+http:
+  timeout_seconds: 10.0
+  user_agent: "subsense/0.1 (+authorized-security-testing)"
+  follow_redirects: true
+  max_redirects: 5
+
+active:
+  enabled: false
+  wordlist: null   # path to bruteforce wordlist; null = built-in small list
+  puredns_bin: puredns
+  massdns_bin: massdns
+  resolvers_file: null
+
+nuclei:
+  enabled: false
+  bin: nuclei
+  templates: []     # empty = nuclei defaults
+  severity: []       # empty = all
+
+ai:
+  enabled: false
+  provider: ollama
+  host: "http://localhost:11434"
+  model: "phi4-mini"
+  json_mode: true
+  batch_size: 150
+
+state:
+  db_path: "./subsense_state.db"
+
+report:
+  out_dir: "./subsense_report"
+  formats:
+    - json
+    - html

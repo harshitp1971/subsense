@@ -1,0 +1,110 @@
+{
+  "_comment": "Subdomain takeover fingerprints: CNAME target patterns + response signatures indicating an unclaimed service that can be taken over. Extend freely.",
+  "fingerprints": [
+    {
+      "service": "GitHub Pages",
+      "cname": ["github.io", "github.map.fastly.net"],
+      "response_body": ["There isn't a GitHub Pages site here"],
+      "http_status": [404],
+      "confidence": "high"
+    },
+    {
+      "service": "Heroku",
+      "cname": ["herokuapp.com", "herokudns.com", "herokussl.com"],
+      "response_body": ["No such app", "herokucdn.com/error-pages/no-such-app.html"],
+      "http_status": [404],
+      "confidence": "high"
+    },
+    {
+      "service": "AWS S3",
+      "cname": ["s3.amazonaws.com", "s3-website"],
+      "response_body": ["NoSuchBucket", "The specified bucket does not exist"],
+      "http_status": [404],
+      "confidence": "high"
+    },
+    {
+      "service": "Shopify",
+      "cname": ["myshopify.com"],
+      "response_body": ["Sorry, this shop is currently unavailable"],
+      "http_status": [404],
+      "confidence": "high"
+    },
+    {
+      "service": "Fastly",
+      "cname": ["fastly.net"],
+      "response_body": ["Fastly error: unknown domain"],
+      "http_status": [404, 500],
+      "confidence": "medium"
+    },
+    {
+      "service": "Azure",
+      "cname": ["azurewebsites.net", "cloudapp.net", "cloudapp.azure.com", "trafficmanager.net", "blob.core.windows.net"],
+      "response_body": ["404 Web Site not found"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Zendesk",
+      "cname": ["zendesk.com"],
+      "response_body": ["Help Center Closed"],
+      "http_status": [404],
+      "confidence": "high"
+    },
+    {
+      "service": "Unbounce",
+      "cname": ["unbouncepages.com"],
+      "response_body": ["The requested URL was not found on this server"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Cargo Collective",
+      "cname": ["cargocollective.com"],
+      "response_body": ["404 Not Found"],
+      "http_status": [404],
+      "confidence": "low"
+    },
+    {
+      "service": "Statuspage",
+      "cname": ["statuspage.io"],
+      "response_body": ["You are being redirected"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Surge.sh",
+      "cname": ["surge.sh"],
+      "response_body": ["project not found"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Tumblr",
+      "cname": ["domains.tumblr.com"],
+      "response_body": ["Whatever you were looking for doesn't currently exist"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "WordPress",
+      "cname": ["wordpress.com"],
+      "response_body": ["Do you want to register"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Netlify",
+      "cname": ["netlify.app", "netlify.com"],
+      "response_body": ["Not Found - Request ID"],
+      "http_status": [404],
+      "confidence": "medium"
+    },
+    {
+      "service": "Vercel",
+      "cname": ["vercel.app", "now.sh"],
+      "response_body": ["DEPLOYMENT_NOT_FOUND"],
+      "http_status": [404],
+      "confidence": "medium"
+    }
+  ]
+}
